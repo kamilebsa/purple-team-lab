@@ -1,0 +1,35 @@
+[
+  {
+    "id": "PT-001",
+    "name": "Tentativas repetidas de login",
+    "event": {
+      "event_type": "brute_force_detected",
+      "source_ip": "192.0.2.10",
+      "severity": "HIGH",
+      "message": "Evento fictício: várias tentativas de login"
+    },
+    "expected_action": "investigate_and_monitor"
+  },
+  {
+    "id": "PT-002",
+    "name": "Malware simulado",
+    "event": {
+      "event_type": "malware_detected",
+      "source_ip": "192.0.2.20",
+      "severity": "CRITICAL",
+      "message": "Evento fictício: detecção de malware em laboratório"
+    },
+    "expected_action": "isolate_candidate"
+  },
+  {
+    "id": "PT-003",
+    "name": "Atividade de atenção",
+    "event": {
+      "event_type": "suspicious_activity",
+      "source_ip": "192.0.2.30",
+      "severity": "WARNING",
+      "message": "Evento fictício para validar monitoramento"
+    },
+    "expected_action": "monitor"
+  }
+]
