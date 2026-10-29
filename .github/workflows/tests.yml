@@ -29,6 +29,9 @@ jobs:
           repository: kamilebsa/soc-blue-team-lab
           path: soc-blue-team-lab
 
+      - name: Install SOC dependencies
+        run: python -m pip install -r soc-blue-team-lab/requirements-dev.txt
+
       - name: Run Purple Team tests
         env:
           SOC_ROOT: ${{ github.workspace }}/soc-blue-team-lab
