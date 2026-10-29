@@ -1,0 +1,40 @@
+name: Purple Team Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Purple Team
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Checkout SOC Blue Team
+        uses: actions/checkout@v4
+        with:
+          repository: kamilebsa/soc-blue-team-lab
+          path: soc-blue-team-lab
+
+      - name: Run Purple Team tests
+        env:
+          SOC_ROOT: ${{ github.workspace }}/soc-blue-team-lab
+        run: python -m pytest -q
+
+      - name: Validate scenarios
+        env:
+          SOC_ROOT: ${{ github.workspace }}/soc-blue-team-lab
+        run: python src/validator.py

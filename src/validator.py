@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "reports" / "latest-report.json"
 
 # Permite importar o Guardian do projeto SOC sem copiar seu código.
-SOC_ROOT = Path.home() / "soc-blue-team-lab"
+import os
+SOC_ROOT = Path(os.getenv("SOC_ROOT", str(Path.home() / "soc-blue-team-lab")))
 sys.path.insert(0, str(SOC_ROOT))
 
 from src.guardian.guardian import evaluate_event
