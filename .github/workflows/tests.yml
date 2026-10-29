@@ -32,7 +32,7 @@ jobs:
       - name: Run Purple Team tests
         env:
           SOC_ROOT: ${{ github.workspace }}/soc-blue-team-lab
-        run: python -m pytest -q
+        run: python -m pytest -q tests
 
       - name: Validate scenarios
         env:
