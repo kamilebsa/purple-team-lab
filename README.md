@@ -4,73 +4,62 @@ Laboratório educacional para validar decisões defensivas do Guardian do projet
 
 ## Objetivos
 
-- Simular cenários controlados com dados fictícios.
-- Validar regras e decisões defensivas.
-- Comparar ações esperadas e observadas.
+- Testar a integração HTTP com a API do SOC.
+- Verificar autenticação e contratos da API.
 - Gerar relatórios JSON reproduzíveis.
-- Documentar evidências, resultados e limitações.
+- Documentar resultados, limitações e melhorias.
 
 ## Arquitetura
 
-- `scenarios/scenarios.json`: cenários de teste.
-- `src/simulator.py`: carregamento e validação dos cenários.
-- `src/validator.py`: validação local das decisões do Guardian.
-- `src/soc_integration.py`: integração opcional com a API SOC.
-- `tests/`: testes automatizados.
-- `reports/`: relatórios gerados localmente.
+| Componente | Responsabilidade |
+|---|---|
+| `scenarios/scenarios.json` | Define os cenários de teste |
+| `src/simulator.py` | Carrega e valida os cenários |
+| `src/validator.py` | Compara as ações esperadas com as decisões do Guardian |
+| `src/soc_integration.py` | Permite testar a integração com a API SOC |
+| `tests/` | Contém os testes automatizados |
+| `reports/` | Recebe relatórios locais da validação |
 
-O Guardian é importado de `~/soc-blue-team-lab`; seu código não é duplicado neste repositório.
+O Guardian é utilizado a partir do repositório `soc-blue-team-lab`. Seu código não é duplicado neste projeto.
 
 ## Requisitos
 
 - Python 3.10 ou superior.
-- Projeto SOC disponível em `~/soc-blue-team-lab`.
-- Dependências necessárias para os testes e a API SOC.
+- Repositório SOC Blue Team Lab disponível localmente.
+- Dependências de desenvolvimento do Purple Team e dependências da API SOC para os testes de integração.
 
-## Validação local
+## Executar o laboratório
 
 ```bash
 cd ~/purple-team-lab
-python -m pytest -q
-python src/validator.py
+SOC_ROOT="$HOME/soc-blue-team-lab" python -m pytest -q tests
+SOC_ROOT="$HOME/soc-blue-team-lab" python src/validator.py
 python -m json.tool reports/latest-report.json
 ```
 
-A validação local compara as ações esperadas com as decisões retornadas pelo Guardian.
-
 ## Integração com o SOC
 
-Por padrão, `src/soc_integration.py` apenas lista os cenários e não envia eventos.
+Por padrão, `src/soc_integration.py` permite testar a integração sem enviar eventos persistentes.
 
-O argumento `--send` envia eventos fictícios à API SOC, cria registros persistentes e consulta as decisões do Guardian. Use-o somente quando quiser registrar intencionalmente novos eventos de teste.
+O argumento `--send` envia eventos fictícios à API do SOC e pode criar registros persistentes. Use-o somente em ambiente controlado e quando quiser realizar esse envio intencionalmente.
 
-A integração autenticada exige a chave configurada localmente em `~/.config/soc-blue-team-lab/api_key`. Nunca publique nem compartilhe essa chave.
+A integração autenticada utiliza uma chave configurada localmente em `~/.config/soc-blue-team-lab/api_key`. Nunca publique nem compartilhe essa chave.
 
-## Cenários
+A validação local compara as ações esperadas com as decisões retornadas pelo Guardian.
 
-- `PT-001`: tentativas repetidas de login; ação esperada `investigate_and_monitor`.
-- `PT-002`: malware simulado; ação esperada `isolate_candidate`.
-- `PT-003`: atividade suspeita; ação esperada `monitor`.
+## Limitações
 
-## Segurança e limitações
+- Os cenários são simulados e não representam ataques reais.
+- O laboratório não executa isolamento real de máquinas.
+- Os resultados dependem da implementação e configuração do SOC Blue Team Lab.
 
-- Os cenários usam dados fictícios em um laboratório educacional.
-- O projeto não executa ataques reais.
-- `mode=simulation` identifica uma decisão em modo de simulação.
-- `executed=false` significa que a ação defensiva não foi executada.
-- `isolate_candidate` é uma recomendação, não isolamento efetivo.
-- O envio de eventos ao SOC não bloqueia conexões nem executa isolamento.
+## Melhorias futuras
 
-## Evidências de investigação
+- Ampliar os cenários de teste.
+- Melhorar a cobertura dos contratos da API.
+- Expandir os relatórios e as evidências de validação.
+- Documentar novas regras de detecção e resultados.
 
-Para cada cenário, documente:
+## Finalidade
 
-1. Identificador e objetivo.
-2. Evento e severidade.
-3. Ação esperada e ação observada.
-4. Resultado do teste.
-5. Evidências, limitações e melhorias recomendadas.
-
-## Objetivo de aprendizagem
-
-Praticar validação de detecções, integração com SOC, testes automatizados e documentação de evidências em um laboratório autorizado.
+Projeto de estudo e portfólio em cibersegurança, com foco em Blue Team, Purple Team, validação de detecção e integração com ferramentas defensivas.
