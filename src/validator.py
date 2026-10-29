@@ -27,6 +27,7 @@ def run_validation():
             "name": scenario["name"],
             "expected_action": expected,
             "actual_action": actual,
+            "reason": response.get("reason"),
             "passed": actual == expected,
             "mode": response.get("mode"),
             "executed": response.get("executed"),
