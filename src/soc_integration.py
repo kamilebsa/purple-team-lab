@@ -90,6 +90,30 @@ def compare_decisions(scenarios, sent_ids, guardian_data):
     return results
 
 
+
+def load_red_team_events():
+    """Carrega somente observações válidas do relatório Red Team."""
+    from red_team_integration import load_red_team_report
+
+    report = load_red_team_report()
+    if report.get("simulation_only") is not True:
+        raise ValueError("Relatório Red Team não está em modo de simulação.")
+
+    return [
+        {
+            "id": f"RT-{event['destination_port']}",
+            "name": f"Observação da porta {event['destination_port']}",
+            "event": event,
+            "expected_action": "log_only",
+        }
+        for event in report["events"]
+    ]
+
+
+def compare_red_team_decisions(events, sent_ids, guardian_data):
+    """Valida as decisões do Guardian para observações Red Team."""
+    return compare_decisions(events, sent_ids, guardian_data)
+
 def main():
     parser = argparse.ArgumentParser(
         description="Integração controlada Purple Team -> SOC local."
@@ -97,19 +121,28 @@ def main():
     parser.add_argument(
         "--send",
         action="store_true",
-        help="Envia eventos fictícios e grava registros no SOC.",
+        help="Envia os três cenários Purple ao SOC.",
+    )
+    parser.add_argument(
+        "--send-red-team",
+        action="store_true",
+        help="Envia somente observações Red Team ao SOC.",
     )
     args = parser.parse_args()
 
+    if args.send and args.send_red_team:
+        parser.error("Use apenas uma opção de envio por vez.")
+
     try:
-        scenarios = load_scenarios()
-        print(f"Cenários carregados: {len(scenarios)}")
+        red_mode = args.send_red_team
+        scenarios = load_red_team_events() if red_mode else load_scenarios()
+        print(f"Eventos carregados: {len(scenarios)}")
         for scenario in scenarios:
             print(f"{scenario['id']}: {scenario['name']}")
 
-        if not args.send:
+        if not args.send and not args.send_red_team:
             print("\nMODO DE SIMULAÇÃO: nenhum evento foi enviado.")
-            print("A validação real exige autorização explícita com --send.")
+            print("Use --send ou --send-red-team para autorizar o envio.")
             return 0
 
         if not KEY_FILE.is_file():
@@ -140,7 +173,11 @@ def main():
             print(f"Registrado: {scenario['id']} (ID {event['id']})")
 
         guardian_data = request_json("/guardian", key)
-        results = compare_decisions(scenarios, sent_ids, guardian_data)
+        results = (
+            compare_red_team_decisions(scenarios, sent_ids, guardian_data)
+            if red_mode
+            else compare_decisions(scenarios, sent_ids, guardian_data)
+        )
 
         print("\n===== VALIDACAO DO GUARDIAN =====")
         for result in results:
@@ -155,7 +192,7 @@ def main():
 
         passed = sum(item["passed"] for item in results)
         failed = len(results) - passed
-        print(f"\nResultado: {passed}/{len(results)} cenários aprovados.")
+        print(f"\nResultado: {passed}/{len(results)} eventos aprovados.")
         print("Os eventos enviados permanecem gravados no SOC.")
         return 0 if failed == 0 else 1
 
